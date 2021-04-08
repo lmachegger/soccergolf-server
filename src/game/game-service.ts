@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
+import { GameData } from './game-data';
 import { createInitialPlayerPoints } from './gamedata-utils';
-import { GameData } from './websocket-data';
 
 export class GameService {
   private gameDatas: GameData[] = [];

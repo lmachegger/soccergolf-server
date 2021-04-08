@@ -1,4 +1,4 @@
-import { Points } from './websocket-data';
+import { Points } from './game-data';
 
 export function createInitialPlayerPoints(numberOfHoles = 18): Points[] {
   const result = new Array();
