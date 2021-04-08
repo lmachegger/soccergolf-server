@@ -6,6 +6,7 @@ import { OnGatewayInit } from '@nestjs/websockets';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Socket } from 'socket.io';
+import { GameService } from './game-service';
 import { ClientMessage } from './websocket-data';
 
 @WebSocketGateway()
@@ -13,10 +14,13 @@ export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private logger: Logger = new Logger('AppGateway');
 
+  private gameService: GameService;
+
   @WebSocketServer()
   wss: Server;
 
   afterInit(server: Server) {
+    this.gameService = new GameService();
     this.logger.log('Initialized!');
   }
 
