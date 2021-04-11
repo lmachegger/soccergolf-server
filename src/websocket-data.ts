@@ -3,3 +3,8 @@ export interface ClientMessage {
   room: string;
   message: string;
 }
+
+export interface JoinRoomMessage {
+  player: string;
+  room: string;
+}

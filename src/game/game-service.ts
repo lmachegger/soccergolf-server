@@ -3,13 +3,17 @@ import { GameData } from './game-data';
 import { createInitialPlayerPoints } from './gamedata-utils';
 
 export class GameService {
-  private gameDatas: GameData[] = [];
+  private _gameDatas: GameData[] = [];
+  public get gameDatas(): GameData[] {
+    return this._gameDatas;
+  }
+
   private logger: Logger = new Logger('GameService');
 
   constructor() {}
 
   public addPlayerToGame(player: string, room: string) {
-    let gameData = this.gameDatas.find((gd) => gd.room === room);
+    let gameData = this._gameDatas.find((gd) => gd.room === room);
     // if room already exists
     if (gameData) {
       // if player already exists
@@ -24,7 +28,7 @@ export class GameService {
       this.addPlayerToRoom(player, room);
     } else {
       // if room doesn't exist, create it!
-      this.gameDatas.push({
+      this._gameDatas.push({
         room: room,
         playerScores: [],
       });
@@ -35,15 +39,18 @@ export class GameService {
   }
 
   private addPlayerToRoom(player: string, room: string) {
-    const gameData = this.gameDatas.find((gd) => gd.room === room);
+    const gameData = this._gameDatas.find((gd) => gd.room === room);
     if (!gameData) {
       this.logger.error(`Room '${room}' not found!`);
       return;
     }
 
-    gameData.playerScores.push({
+    const newPlayer = {
       player: player,
       points: createInitialPlayerPoints(),
-    });
+    };
+    gameData.playerScores.push(newPlayer);
+
+    this.logger.log('added new player: ' + newPlayer);
   }
 }

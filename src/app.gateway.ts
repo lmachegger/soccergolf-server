@@ -6,8 +6,9 @@ import { OnGatewayInit } from '@nestjs/websockets';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Socket } from 'socket.io';
+import { GameData } from './game/game-data';
 import { GameService } from './game/game-service';
-import { ClientMessage } from './websocket-data';
+import { ClientMessage, JoinRoomMessage } from './websocket-data';
 
 @WebSocketGateway()
 export class AppGateway
@@ -32,6 +33,10 @@ export class AppGateway
     this.logger.log(`Client connected: ${client.id}`);
   }
 
+  sendGameDatas(gameDatas: GameData[], room: string) {
+    this.wss.to(room).emit('gameDataToClient', gameDatas);
+  }
+
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, message: ClientMessage) {
     this.logger.log('msgToServer: ' + message);
@@ -39,10 +44,20 @@ export class AppGateway
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket, room: string) {
-    this.logger.log('joinRoom: clientId=' + client.id + ' room=' + room);
-    client.join(room);
-    client.emit('joinedRoom', room);
+  handleJoinRoom(client: Socket, message: JoinRoomMessage) {
+    this.logger.log(
+      'joinRoom: player=' + message.player + ' room=' + message.room,
+    );
+
+    // join room
+    client.join(message.room);
+    client.emit('joinedRoom', message.room);
+
+    // add player to game
+    this.gameService.addPlayerToGame(message.player, message.room);
+
+    // send new gamedata to all players
+    this.sendGameDatas(this.gameService.gameDatas, message.room);
   }
 
   @SubscribeMessage('leaveRoom')
